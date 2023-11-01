@@ -1,0 +1,6 @@
+rootProject.name = 'rss'
+include 'crawler-producer'
+include 'consumer-db'
+include 'web-server'
+include 'web-server'
+
