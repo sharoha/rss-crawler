@@ -1,0 +1,4 @@
+server.port: 9000
+
+rssUrls:
+  - https://blog.codinghorror.com/rss/
