@@ -1,12 +1,17 @@
 package com.adr.crawler.task;
 
+import com.adr.crawler.parser.RssAtomFeedParser;
+import com.adr.crawler.parser.RssParser;
+import com.adr.producer.RssDataMapper;
+import com.adr.util.RssContent;
+import com.adr.util.RssRecord;
 import com.adr.crawler.restclient.RssRestClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,17 +20,20 @@ import java.util.stream.Collectors;
 public class ScheduledCrawler {
     @Autowired
     RssUrls rssUrls;
-
     @Autowired
     RssRestClient rssRestClient;
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+    private static final RssParser rssParser = new RssAtomFeedParser();
 
     @Scheduled(fixedRate = 5000)
     public void reportCurrentTime() {
-        Set<String> collect = rssUrls.getRssUrls()
+        Set<RssContent> data = rssUrls.getRssUrls()
                 .stream()
-                .map(rssRestClient::getResponse)
-                .peek(ele -> log.info("Response received: {}", ele))
+                .map(url -> new RssRecord(url, rssRestClient.getResponse(url)))
+                .map(rssParser::parse)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .flatMap(entry -> new RssDataMapper().apply(entry).stream())
                 .collect(Collectors.toSet());
+
     }
 }
