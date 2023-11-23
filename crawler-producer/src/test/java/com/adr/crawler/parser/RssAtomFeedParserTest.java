@@ -1,18 +1,16 @@
 package com.adr.crawler.parser;
 
+import com.adr.util.RssRecord;
 import com.rometools.rome.feed.synd.SyndFeed;
-import lombok.SneakyThrows;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -32,8 +30,8 @@ public class RssAtomFeedParserTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        SyndFeed parse = parser.parse(fileContent);
-        assertEquals(parse.getEntries().size(), 15);
-        assertEquals(parse.getTitle(), "Coding Horror");
+        Optional<SyndFeed> parse = parser.parse(new RssRecord("dummUrl", fileContent));
+        assertEquals(parse.get().getEntries().size(), 15);
+        assertEquals(parse.get().getTitle(), "Coding Horror");
     }
 }
